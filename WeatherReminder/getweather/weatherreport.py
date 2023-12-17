@@ -1,6 +1,9 @@
 import os
 import datetime
+
 import django
+from django.core.mail import EmailMessage
+from django.core import mail
 
 django.setup()
 
@@ -8,27 +11,24 @@ from subscription.models import Subscription
 from utils import get_geo_coordinates, get_curent_weather
 
 
-# Open Weather URLs and params for getting geo coordinates and weather data
-coordinates_url = 'http://api.openweathermap.org/geo/1.0/direct'
-weather_url = 'https://api.openweathermap.org/data/3.0/onecall'
-units = 'metric'
-exclude = 'minutely,hourly,daily,alerts'
-api_key = os.environ.get("OPEN_WEATHER_MAP_API_KEY")
-subscriptions = Subscription.objects.all()
+# OpenWeather URLs and params for getting geo coordinates and weather data
+COORDINATES_URL = 'http://api.openweathermap.org/geo/1.0/direct'
+WEATHER_DATA_URL = 'https://api.openweathermap.org/data/3.0/onecall'
+UNITS = 'metric'
+EXCLUDE = 'minutely,hourly,daily,alerts'
+API_KEY = os.environ.get("OPEN_WEATHER_MAP_API_KEY")
 
+email_list = []
+
+subscriptions = Subscription.objects.all()
 for subscription in subscriptions:
     # Getting geo coordinates
     city_name = subscription.city.name
     country_code = subscription.city.country_code
     city_plus_country_code = city_name+','+country_code
-    #city_name = 'Uman,UA'
-    lat, lon = get_geo_coordinates(city_plus_country_code, api_key, coordinates_url)
-    print(lat)
-    print(lon)
+    lat, lon = get_geo_coordinates(city_plus_country_code, API_KEY, COORDINATES_URL)
     # Getting weather results
-    weather_report = get_curent_weather(lat, lon, api_key, weather_url, units, exclude)
-    print(f'This is a weather report for {city_plus_country_code}')
-    print(weather_report)
+    weather_report = get_curent_weather(lat, lon, API_KEY, WEATHER_DATA_URL, UNITS, EXCLUDE)
     # Extracting weather data from the response
     # Time
     unix_timestamp = weather_report['current'].get('dt', 'N/A')
@@ -45,4 +45,26 @@ for subscription in subscriptions:
     weather_description = weather_report['current'].get('weather', 'N/A')[0].get('description', 'N/A')
     weather_icon_id = weather_report['current'].get('weather', 'N/A')[0].get('icon', 'N/A')
     weather_icon_url = f'https://openweathermap.org/img/wn/{weather_icon_id}@2x.png'
+
+    email_body = f"""Hello,
+        Here is your latest weather forecast for {city_name} as of {current_time}:<br>
+        {weather_main}<br>
+        {weather_description}<br>
+        Temperature: {temperature}<br>
+        Feels like: {feels_like}<br>
+        Pressure: {pressure}<br>
+        Humidity: {humidity}<br>
+        Wind speed: {wind_speed}<br>
+        <img src="{weather_icon_url}" alt="Weather icon">
+    """
+    email = EmailMessage(
+        subject="Your latest weather forecast",
+        body=email_body,
+        to=[subscription.owner.email,]
+    )
+    email.content_subtype = 'html'
+    email_list.append(email)
+
+connection = mail.get_connection()
+connection.send_messages(email_list)
 
