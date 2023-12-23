@@ -10,7 +10,6 @@ django.setup()
 from subscription.models import Subscription
 from utils import get_geo_coordinates, get_curent_weather
 
-
 # OpenWeather URLs and params for getting geo coordinates and weather data
 COORDINATES_URL = 'http://api.openweathermap.org/geo/1.0/direct'
 WEATHER_DATA_URL = 'https://api.openweathermap.org/data/3.0/onecall'
@@ -25,7 +24,7 @@ for subscription in subscriptions:
     # Getting geo coordinates
     city_name = subscription.city.name
     country_code = subscription.city.country_code
-    city_plus_country_code = city_name+','+country_code
+    city_plus_country_code = city_name + ',' + country_code
     lat, lon = get_geo_coordinates(city_plus_country_code, API_KEY, COORDINATES_URL)
     # Getting weather results
     weather_report = get_curent_weather(lat, lon, API_KEY, WEATHER_DATA_URL, UNITS, EXCLUDE)
@@ -46,8 +45,12 @@ for subscription in subscriptions:
     weather_icon_id = weather_report['current'].get('weather', 'N/A')[0].get('icon', 'N/A')
     weather_icon_url = f'https://openweathermap.org/img/wn/{weather_icon_id}@2x.png'
 
-    email_body = f"""Hello,
-        Here is your latest weather forecast for {city_name} as of {current_time}:<br>
+    email_body = f"""Hello,<br>
+        Here is weather forecast you've never subscribed for:<br>
+        GatherWeather sends you updates even if you didn't ask. This makes us special.<br>
+        There is no 'Unsubscribe' button below, because we'd be sorry to see you go.<br>
+        <br>
+        {city_name}<br>
         {weather_main}<br>
         {weather_description}<br>
         Temperature: {temperature}<br>
@@ -60,11 +63,10 @@ for subscription in subscriptions:
     email = EmailMessage(
         subject="Your latest weather forecast",
         body=email_body,
-        to=[subscription.owner.email,]
+        to=[subscription.owner.email, ]
     )
     email.content_subtype = 'html'
     email_list.append(email)
 
 connection = mail.get_connection()
 connection.send_messages(email_list)
-
