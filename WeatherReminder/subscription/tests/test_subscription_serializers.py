@@ -6,6 +6,7 @@ from subscription.serializers import SubscriptionSerializer, CitySerializer, Use
 
 
 class CitySerializerTestCase(TestCase):
+
     def test_city_serializer(self):
         city = City.objects.create(name='Lviv', country_code='UA')
         city_1 = City.objects.create(name='Uman', country_code='UA')
