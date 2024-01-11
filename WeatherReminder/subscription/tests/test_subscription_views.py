@@ -13,7 +13,6 @@ class SubscriptionListViewTestCase(APITestCase):
         self.user = User.objects.create(username='user', password='userpassword', email='useremail@gmail.com')
         self.city = City.objects.create(name='Lviv', country_code='UA')
         self.subscription = Subscription.objects.create(city=self.city, frequency=1, owner=self.user)
-        #self.url = 'http://127.0.0.1:8000/api/subscriptions/'
         self.url = reverse('subscription:subscriptions')
         self.client = APIClient()
 
@@ -53,7 +52,6 @@ class SubscriptionDetailTestCase(APITestCase):
         self.user = User.objects.create(username='user', password='userpassword', email='useremail@gmail.com')
         self.city = City.objects.create(name='Lviv', country_code='UA')
         self.subscription = Subscription.objects.create(city=self.city, frequency=1, owner=self.user)
-        #self.subscription_detail_url = f'http://127.0.0.1:8000/api/subscriptions/{self.subscription.id}/'
         self.subscription_detail_url = reverse('subscription:subscription_detail', args=[self.subscription.id])
         self.client = APIClient()
 
