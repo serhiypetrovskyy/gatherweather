@@ -11,12 +11,12 @@ class City(models.Model):
 
 class Subscription(models.Model):
     created = models.DateTimeField(auto_now_add=True)
-    city = models.ForeignKey(City, on_delete=models.CASCADE)
+    city_id = models.ForeignKey(City, on_delete=models.CASCADE)
     frequency = models.IntegerField()
     owner = models.ForeignKey('auth.User', related_name='subscriptions', on_delete=models.CASCADE)
 
     def __str__(self):
-        name = f"{self.city} by {self.owner}"
+        name = f"{self.city_id} by {self.owner}"
         return name
 
     class Meta:

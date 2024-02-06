@@ -13,10 +13,11 @@ class CitySerializer(serializers.ModelSerializer):
 
 class SubscriptionSerializer(serializers.ModelSerializer):
     owner = serializers.ReadOnlyField(source='owner.username')
+    city_name = serializers.ReadOnlyField(source='city_id.name')
 
     class Meta:
         model = Subscription
-        fields = ['id', 'city', 'frequency', 'owner']
+        fields = ['id', 'city_id', 'city_name', 'frequency', 'owner']
 
 
 class UserSerializer(serializers.ModelSerializer):

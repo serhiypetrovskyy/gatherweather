@@ -5,6 +5,7 @@ import django
 from django.core.mail import EmailMessage
 from django.core import mail
 
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'WeatherReminder.settings')
 django.setup()
 
 from subscription.models import Subscription

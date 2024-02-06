@@ -28,7 +28,7 @@ class SubscriptionList(APIView):
                             status=status.HTTP_400_BAD_REQUEST)
         city, created = City.objects.get_or_create(name=city_name, country_code=country_code)
         subscription_data = {
-            'city': city.id,
+            'city_id': city.id,
             'frequency': request.data.get('frequency')
         }
         serializer = SubscriptionSerializer(data=subscription_data)
@@ -59,7 +59,17 @@ class SubscriptionDetail(APIView):
 
     def put(self, request, pk, format=None):
         subscription = self.get_object(pk)
-        serializer = SubscriptionSerializer(subscription, data=request.data)
+        city_name = request.data.get('city_name')
+        country_code = request.data.get('country_code').upper()
+        if not city_name or not country_code:
+            return Response({'error': 'City name and 2 letter country code are required!'},
+                            status=status.HTTP_400_BAD_REQUEST)
+        city, created = City.objects.get_or_create(name=city_name, country_code=country_code)
+        updated_subscription_data = {
+            'city_id': city.id,
+            'frequency': request.data.get('frequency')
+        }
+        serializer = SubscriptionSerializer(subscription, data=updated_subscription_data)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data)
