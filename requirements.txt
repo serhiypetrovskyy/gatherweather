@@ -38,3 +38,6 @@ rsa==4.9
 sqlparse==0.4.4
 typing_extensions==4.7.1
 urllib3==2.0.4
+django-storages==1.13.2
+azure-core==1.26.3
+azure-storage-blob==12.14.1
