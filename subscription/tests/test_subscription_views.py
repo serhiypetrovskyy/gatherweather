@@ -12,7 +12,7 @@ class SubscriptionListViewTestCase(APITestCase):
     def setUp(self):
         self.user = User.objects.create(username='user', password='userpassword', email='useremail@gmail.com')
         self.city = City.objects.create(name='Lviv', country_code='UA')
-        self.subscription = Subscription.objects.create(city=self.city, frequency=1, owner=self.user)
+        self.subscription = Subscription.objects.create(city_id=self.city, frequency=1, owner=self.user)
         self.url = reverse('subscription:subscriptions')
         self.client = APIClient()
 
@@ -29,8 +29,8 @@ class SubscriptionListViewTestCase(APITestCase):
 
     def test_subscription_view_POST(self):
         self.client.force_authenticate(user=self.user)
-        city_name = 'Uman',
-        country_code = 'UA',
+        city_name = 'Uman'
+        country_code = 'UA'
         frequency = 1
         response = self.client.post(self.url, {'city_name': city_name, 'country_code': country_code,
                                                'frequency': frequency})
@@ -51,7 +51,7 @@ class SubscriptionDetailTestCase(APITestCase):
     def setUp(self):
         self.user = User.objects.create(username='user', password='userpassword', email='useremail@gmail.com')
         self.city = City.objects.create(name='Lviv', country_code='UA')
-        self.subscription = Subscription.objects.create(city=self.city, frequency=1, owner=self.user)
+        self.subscription = Subscription.objects.create(city_id=self.city, frequency=1, owner=self.user)
         self.subscription_detail_url = reverse('subscription:subscription_detail', args=[self.subscription.id])
         self.client = APIClient()
 
@@ -68,11 +68,15 @@ class SubscriptionDetailTestCase(APITestCase):
 
     def test_subscription_detail_view_PUT(self):
         self.client.force_authenticate(user=self.user)
+        city_name = 'Uman'
+        country_code = 'UA'
         expected_frequency = 2
         response = self.client.put(self.subscription_detail_url,
-                                   {'city': self.city.id, 'frequency': expected_frequency})
+                                   {'city_name': city_name, 'country_code': country_code,
+                                    'frequency': expected_frequency})
         self.assertEqual(status.HTTP_200_OK, response.status_code)
         self.assertEqual(expected_frequency, response.data['frequency'])
+        self.assertEqual(city_name, response.data['city_name'])
 
     def test_subscription_view_PUT_not_authenticated(self):
         expected_frequency = 2

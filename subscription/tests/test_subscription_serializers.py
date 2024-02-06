@@ -50,11 +50,12 @@ class SubscriptionSerializerTestCase(TestCase):
     def test_subscription_serializer(self):
         user = User.objects.create(username='user', password='userpassword', email='useremail@gmail.com')
         city = City.objects.create(name='Lviv', country_code='UA')
-        subscription = Subscription.objects.create(city=city, frequency=1, owner=user)
+        subscription = Subscription.objects.create(city_id=city, frequency=1, owner=user)
         data = SubscriptionSerializer(subscription).data
         expected_data = {
                 'id': 1,
-                'city': 1,
+                'city_id': 1,
+                'city_name': 'Lviv',
                 'frequency': 1,
                 'owner': 'user',
             }
