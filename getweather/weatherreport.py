@@ -23,8 +23,8 @@ email_list = []
 subscriptions = Subscription.objects.all()
 for subscription in subscriptions:
     # Getting geo coordinates
-    city_name = subscription.city.name
-    country_code = subscription.city.country_code
+    city_name = subscription.city_id.name
+    country_code = subscription.city_id.country_code
     city_plus_country_code = city_name + ',' + country_code
     lat, lon = get_geo_coordinates(city_plus_country_code, API_KEY, COORDINATES_URL)
     # Getting weather results
