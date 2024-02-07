@@ -1,4 +1,10 @@
-**How-to for this API**
+**How-to for GatherWeather API**
+
+Follow the steps below to start receiving your weather forecast updates:
+
+* Register
+* Subscribe for weather forecast in your city. Specify preferred frequency
+* Receive weather updates via email 
 
 **1. Registration**
 
