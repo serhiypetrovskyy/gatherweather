@@ -16,22 +16,12 @@ class SubscriptionList(APIView):
     permission_classes = [permissions.IsAuthenticated, IsOwner]
     
     def get(self, request, format=None):
-        subscriptions = Subscription.objects.all().filter(owner=request.user)
+        subscriptions = Subscription.objects.filter(owner=request.user).all()
         serializer = SubscriptionSerializer(subscriptions, many=True)
         return Response(serializer.data)
 
     def post(self, request, format=None):
-        city_name = request.data.get('city_name')
-        country_code = request.data.get('country_code').upper()
-        if not city_name or not country_code:
-            return Response({'error': 'City name and 2 letter country code are required!'},
-                            status=status.HTTP_400_BAD_REQUEST)
-        city, created = City.objects.get_or_create(name=city_name, country_code=country_code)
-        subscription_data = {
-            'city_id': city.id,
-            'frequency': request.data.get('frequency')
-        }
-        serializer = SubscriptionSerializer(data=subscription_data)
+        serializer = SubscriptionSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save(owner=self.request.user)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
@@ -59,17 +49,7 @@ class SubscriptionDetail(APIView):
 
     def put(self, request, pk, format=None):
         subscription = self.get_object(pk)
-        city_name = request.data.get('city_name')
-        country_code = request.data.get('country_code').upper()
-        if not city_name or not country_code:
-            return Response({'error': 'City name and 2 letter country code are required!'},
-                            status=status.HTTP_400_BAD_REQUEST)
-        city, created = City.objects.get_or_create(name=city_name, country_code=country_code)
-        updated_subscription_data = {
-            'city_id': city.id,
-            'frequency': request.data.get('frequency')
-        }
-        serializer = SubscriptionSerializer(subscription, data=updated_subscription_data)
+        serializer = SubscriptionSerializer(subscription, data=request.data)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data)
