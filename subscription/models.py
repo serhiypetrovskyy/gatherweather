@@ -6,7 +6,7 @@ class City(models.Model):
     country_code = models.CharField(max_length=2)
 
     def __str__(self):
-        return self.name
+        return self.city_name
 
 
 class Subscription(models.Model):
