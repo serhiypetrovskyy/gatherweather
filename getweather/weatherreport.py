@@ -2,14 +2,13 @@ import os
 import datetime
 
 import django
-from django.core.mail import EmailMessage
-from django.core import mail
 
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'WeatherReminder.settings')
 django.setup()
 
 from subscription.models import Subscription
 from utils import get_geo_coordinates, get_curent_weather
+from getweather.tasks import send_weather_report_email_task
 
 # OpenWeather URLs and params for getting geo coordinates and weather data
 COORDINATES_URL = 'http://api.openweathermap.org/geo/1.0/direct'
@@ -23,7 +22,7 @@ email_list = []
 subscriptions = Subscription.objects.all()
 for subscription in subscriptions:
     # Getting geo coordinates
-    city_name = subscription.city_id.name
+    city_name = subscription.city_id.city_name
     country_code = subscription.city_id.country_code
     city_plus_country_code = city_name + ',' + country_code
     lat, lon = get_geo_coordinates(city_plus_country_code, API_KEY, COORDINATES_URL)
@@ -61,13 +60,12 @@ for subscription in subscriptions:
         Wind speed: {wind_speed}<br>
         <img src="{weather_icon_url}" alt="Weather icon">
     """
-    email = EmailMessage(
-        subject="Your latest weather forecast",
-        body=email_body,
-        to=[subscription.owner.email, ]
-    )
-    email.content_subtype = 'html'
-    email_list.append(email)
+    email_dict = {
+        "subject": "Your latest weather forecast",
+        "body": email_body,
+        "to": [subscription.owner.email, ]
+    }
 
-connection = mail.get_connection()
-connection.send_messages(email_list)
+    email_list.append(email_dict)
+
+send_weather_report_email_task.delay(email_list)
