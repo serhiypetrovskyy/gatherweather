@@ -8,18 +8,18 @@ from subscription.serializers import SubscriptionSerializer, CitySerializer, Use
 class CitySerializerTestCase(TestCase):
 
     def test_city_serializer(self):
-        city = City.objects.create(name='Lviv', country_code='UA')
-        city_1 = City.objects.create(name='Uman', country_code='UA')
+        city = City.objects.create(city_name='Lviv', country_code='UA')
+        city_1 = City.objects.create(city_name='Uman', country_code='UA')
         data = CitySerializer([city, city_1], many=True).data
         expected_data = [
             {
                 'id': 1,
-                'name': 'Lviv',
+                'city_name': 'Lviv',
                 'country_code': 'UA',
             },
             {
                 'id': 2,
-                'name': 'Uman',
+                'city_name': 'Uman',
                 'country_code': 'UA',
             },
         ]
@@ -49,14 +49,17 @@ class UserSerializerTestCase(TestCase):
 class SubscriptionSerializerTestCase(TestCase):
     def test_subscription_serializer(self):
         user = User.objects.create(username='user', password='userpassword', email='useremail@gmail.com')
-        city = City.objects.create(name='Lviv', country_code='UA')
+        city = City.objects.create(city_name='Lviv', country_code='UA')
         subscription = Subscription.objects.create(city_id=city, frequency=1, owner=user)
         data = SubscriptionSerializer(subscription).data
         expected_data = {
-                'id': 1,
-                'city_id': 1,
-                'city_name': 'Lviv',
-                'frequency': 1,
-                'owner': 'user',
-            }
+            "id": 1,
+            "city_id": {
+                "id": 1,
+                "city_name": "Lviv",
+                "country_code": "UA"
+            },
+            "frequency": 1,
+            "owner": "user"
+        }
         self.assertEqual(expected_data, data)
