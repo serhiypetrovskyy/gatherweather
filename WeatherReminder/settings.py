@@ -153,3 +153,6 @@ EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 
+# Celery settings
+CELERY_BROKER_URL = "redis://redis4gatherweather.redis.cache.windows.net:6380,password=cKfIIHMqFBWKXqy8waPvozB7FEdGzSJLQAzCaFsfI1g=,ssl=True,abortConnect=False"
+CELERY_RESULT_BACKEND = "redis://redis4gatherweather.redis.cache.windows.net:6380,password=cKfIIHMqFBWKXqy8waPvozB7FEdGzSJLQAzCaFsfI1g=,ssl=True,abortConnect=False"
