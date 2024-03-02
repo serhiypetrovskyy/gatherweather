@@ -34,11 +34,14 @@ class SubscriptionSerializer(serializers.ModelSerializer):
         city, created = City.objects.get_or_create(city_name=city_name, country_code=country_code)
         instance.city_id = city
         instance.frequency = validated_data.get('frequency', instance.frequency)
+        instance.save()
         return instance
 
     def validate_city_id(self, value):
         """Varify the string contains letters only"""
-        if any(not item.isalpha() for item in value.values()):
+        city_name = value.get('city_name', '')
+        country_code = value.get('country_code', '')
+        if any(not item.isalpha() for item in city_name + country_code):
             raise serializers.ValidationError("Must contain letters only!")
         if len(value['country_code']) < 2:
             raise serializers.ValidationError("Country code must be a 2-letter value!")
