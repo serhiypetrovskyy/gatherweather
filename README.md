@@ -58,6 +58,16 @@ Parameters:
 - country_code (Two-letter)
 - frequency
 
+Request example:
+
+{
+    "city_id": {
+        "city_name": "Lviv",
+        "country_code": "UA"
+    },
+    "frequency": 2
+}
+
 **6. Update subscription**
 
 URL: https://gatherweather.azurewebsites.net/api/subscriptions/<<int:pk>                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            >/
@@ -70,6 +80,16 @@ Parameters:
 - city_name
 - country_code (Two-letter)
 - frequency
+
+Request example:
+
+{
+    "city_id": {
+        "city_name": "Lviv",
+        "country_code": "UA"
+    },
+    "frequency": 2
+}
 
 **7. Delete subscription**
 

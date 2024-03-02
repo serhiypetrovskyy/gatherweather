@@ -16,16 +16,31 @@ from pathlib import Path
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
-
 # SECURITY WARNING: keep the secret key used in production secret!
-#SECRET_KEY = os.getenv('SECRET_KEY')
-SECRET_KEY = "DJSfuTOYdxIaVXAeJktUYHEQbfFlwjhRNVGJiXzBYFxcktgoqP"
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+SECRET_KEY = os.getenv('SECRET_KEY')
 
-ALLOWED_HOSTS = ['*']
+# SECURITY WARNING: don't run with debug turned on in production!
+DEBUG = os.getenv('DEBUG', '0').lower() in ['true', 't', '1']
+
+ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS').split(' ')
+CSRF_TRUSTED_ORIGINS = os.getenv('CSRF_TRUSTED_ORIGINS').split(' ')
+
+SECURE_SSL_REDIRECT = \
+    os.getenv('SECURE_SSL_REDIRECT', '0').lower() in ['true', 't', '1']
+if SECURE_SSL_REDIRECT:
+    SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+
+# Database
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': os.environ.get('DBNAME'),
+        'HOST': os.environ.get('DBHOST'),
+        'USER': os.environ.get('DBUSER'),
+        'PASSWORD': os.environ.get('DBPASS'),
+        'OPTIONS': {'sslmode': 'require'},
+    }
+}
 
 # Application definition
 
@@ -80,16 +95,6 @@ TEMPLATES = [
 WSGI_APPLICATION = 'WeatherReminder.wsgi.application'
 
 
-# Database setting for local development
-# https://docs.djangoproject.com/en/4.2/ref/settings/#databases
-
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
-    }
-}
-
 # Password validation
 # https://docs.djangoproject.com/en/4.2/ref/settings/#auth-password-validators
 
@@ -110,21 +115,33 @@ AUTH_PASSWORD_VALIDATORS = [
 
 # Internationalization
 TIME_ZONE = 'UTC'
+
 USE_I18N = True
+
 USE_TZ = True
+
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
-STATIC_ROOT = BASE_DIR / 'static'
-STATIC_URL = "static/"
-STATICFILES_DIRS = []
+
+DEFAULT_FILE_STORAGE = 'WeatherReminder.azure_storage.AzureMediaStorage'
+STATICFILES_STORAGE = 'WeatherReminder.azure_storage.AzureStaticStorage'
+
+AZURE_ACCOUNT_NAME = os.getenv('AZURE_ACCOUNT_NAME')
+AZURE_ACCOUNT_KEY = os.getenv('AZURE_ACCOUNT_KEY')
+AZURE_CUSTOM_DOMAIN = f'{AZURE_ACCOUNT_NAME}.blob.core.windows.net'
+
+STATIC_URL = f'https://{AZURE_CUSTOM_DOMAIN}/static/'
+STATIC_ROOT = BASE_DIR / 'staticfiles'
+
+MEDIA_URL = f'https://{AZURE_CUSTOM_DOMAIN}/media/'
+MEDIA_ROOT = BASE_DIR / 'mediafiles'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-# JWT settings
 SIMPLE_JWT = {
     "ACCESS_TOKEN_LIFETIME": timedelta(minutes=30),
     "REFRESH_TOKEN_LIFETIME": timedelta(days=1),
@@ -133,14 +150,10 @@ SIMPLE_JWT = {
 # Email settings
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
-EMAIL_FROM = os.environ.get('WEATHER_EMAIL_FROM')
-EMAIL_HOST_USER = os.environ.get('WEATHER_EMAIL_HOST_USER')
-EMAIL_HOST_PASSWORD = os.environ.get('WEATHER_EMAIL_HOST_PASSWORD')
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 
 # Celery settings
-CELERY_BROKER_URL = "redis://localhost:6379"
-CELERY_RESULT_BACKEND = "redis://localhost:6379"
+CELERY_BROKER_URL = "redis://redis4gatherweather.redis.cache.windows.net:6380,password=cKfIIHMqFBWKXqy8waPvozB7FEdGzSJLQAzCaFsfI1g=,ssl=True,abortConnect=False"
+CELERY_RESULT_BACKEND = "redis://redis4gatherweather.redis.cache.windows.net:6380,password=cKfIIHMqFBWKXqy8waPvozB7FEdGzSJLQAzCaFsfI1g=,ssl=True,abortConnect=False"
 CELERY_BEAT_SCHEDULER = "django_celery_beat.schedulers:DatabaseScheduler"
-
