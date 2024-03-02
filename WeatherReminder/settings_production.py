@@ -56,6 +56,7 @@ INSTALLED_APPS = [
     'rest_framework_simplejwt',
     'subscription',
     'getweather',
+    'django_celery_beat',
 ]
 
 MIDDLEWARE = [
