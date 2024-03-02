@@ -1,10 +1,12 @@
+import json
 from django.http import Http404
 
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status, permissions
+from django_celery_beat.models import PeriodicTask, IntervalSchedule
 
-from subscription.models import Subscription, City
+from subscription.models import Subscription
 from subscription.serializers import SubscriptionSerializer
 from subscription.permissions import IsOwner
 
@@ -23,7 +25,17 @@ class SubscriptionList(APIView):
     def post(self, request, format=None):
         serializer = SubscriptionSerializer(data=request.data)
         if serializer.is_valid():
-            serializer.save(owner=self.request.user)
+            subscription = serializer.save(owner=self.request.user)
+            schedule, created = IntervalSchedule.objects.get_or_create(
+                every=subscription.frequency,
+                period=IntervalSchedule.MINUTES
+            )
+            task = PeriodicTask.objects.create(
+                interval=schedule,
+                name=subscription.id,
+                task='subscription.tasks.create_and_send_weather_report_task',
+                args=json.dumps([subscription.id]),
+            )
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -51,12 +63,21 @@ class SubscriptionDetail(APIView):
         subscription = self.get_object(pk)
         serializer = SubscriptionSerializer(subscription, data=request.data)
         if serializer.is_valid():
-            serializer.save()
+            updated_subscription = serializer.save()
+            schedule, created = IntervalSchedule.objects.get_or_create(
+                every=updated_subscription.frequency,
+                period=IntervalSchedule.MINUTES
+            )
+            task = PeriodicTask.objects.get(name=subscription.id)
+            task.interval = schedule
+            task.save()
             return Response(serializer.data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def delete(self, request, pk, format=None):
         subscription = self.get_object(pk)
+        task = PeriodicTask.objects.get(name=pk)
+        task.delete()
         subscription.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
