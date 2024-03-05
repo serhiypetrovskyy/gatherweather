@@ -114,7 +114,7 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 # Internationalization
-TIME_ZONE = 'Europe/Berlin'
+TIME_ZONE = 'UTC'
 
 USE_I18N = True
 

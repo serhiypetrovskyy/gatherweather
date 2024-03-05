@@ -28,7 +28,7 @@ class SubscriptionList(APIView):
             subscription = serializer.save(owner=self.request.user)
             schedule, created = IntervalSchedule.objects.get_or_create(
                 every=subscription.frequency,
-                period=IntervalSchedule.MINUTES
+                period=IntervalSchedule.HOURS
             )
             task = PeriodicTask.objects.create(
                 interval=schedule,
@@ -66,7 +66,7 @@ class SubscriptionDetail(APIView):
             updated_subscription = serializer.save()
             schedule, created = IntervalSchedule.objects.get_or_create(
                 every=updated_subscription.frequency,
-                period=IntervalSchedule.MINUTES
+                period=IntervalSchedule.HOURS
             )
             task = PeriodicTask.objects.get(name=subscription.id)
             task.interval = schedule

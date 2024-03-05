@@ -30,9 +30,6 @@ def create_and_send_weather_report_task(subscription_id):
     # Get weather data
     weather_report = get_current_weather(lat, lon, API_KEY, WEATHER_DATA_URL, UNITS, EXCLUDE)
     # Extracting weather data from the response
-    # Time
-    # unix_timestamp = weather_report['current'].get('dt', 'N/A')
-    # current_time = datetime.datetime.utcfromtimestamp(unix_timestamp)
     # Temperature
     temperature = weather_report['current'].get('temp', 'N/A')
     feels_like = weather_report['current'].get('feels_like', 'N/A')
